@@ -145,6 +145,46 @@
   .wk input { position: absolute; opacity: 0; pointer-events: none; }
   .wk.on { background: var(--ink); border-color: var(--ink); color: #fff; }
 
+  /* 前半/後半の区切り見出し（グリッド全幅） */
+  .wk-sep {
+    grid-column: 1 / -1;
+    font-family: "Helvetica Neue", "Arial", sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: #b3a384;
+    text-align: center;
+    margin: 6px 0 2px;
+  }
+
+  /* クイック選択ボタン */
+  .wk-tools { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .wk-tools button {
+    font-family: "Helvetica Neue", "Arial", sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .wk-tools button:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* 導入日トグル */
+  .base-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 16px 0 0;
+    font-size: 0.84rem;
+    letter-spacing: 0;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .base-toggle input { width: auto; }
+
   button.calc {
     width: 100%;
     padding: 15px;
@@ -305,7 +345,14 @@
     <!-- EX専用：対象週 -->
     <div class="field" id="weeksField">
       <label>対象週（＝EX導入から◯週目）</label>
+      <div class="wk-tools">
+        <button type="button" data-sel="all">全選択</button>
+        <button type="button" data-sel="none">全解除</button>
+        <button type="button" data-sel="first">前半のみ</button>
+        <button type="button" data-sel="second">後半のみ</button>
+      </div>
       <div class="weeks-grid" id="weeksGrid"></div>
+      <label class="base-toggle"><input type="checkbox" id="includeBase" checked> 導入日（基準日）も書き出す</label>
     </div>
 
     <button class="calc" id="calcBtn">一 覧 を 表 示</button>
@@ -373,9 +420,11 @@ const HOLIDAYS = {
 };
 
 const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
-const EX_WEEKS = [4, 8, 12, 13, 16, 20, 24, 26];
+const FIRST_HALF = [4, 8, 12, 13, 16, 20, 24, 26];
+const SECOND_HALF = [28, 32, 36, 39, 40, 44, 48, 52];
+const EX_WEEKS = FIRST_HALF.concat(SECOND_HALF);
 const NU_WEEKS = [4, 8, 12, 16, 20, 24];
-const LS = { mode: "v26_mode", source: "v26_source", sourceCustom: "v26_sourceCustom", weeks: "v26_weeks" };
+const LS = { mode: "v26_mode", source: "v26_source", sourceCustom: "v26_sourceCustom", weeks: "v26_weeks", base: "v26_base" };
 
 /* ---------- 日付ユーティリティ ---------- */
 function p2(n){ return String(n).padStart(2, "0"); }
@@ -405,6 +454,7 @@ const source = document.getElementById("source");
 const sourceCustom = document.getElementById("sourceCustom");
 const weeksField = document.getElementById("weeksField");
 const weeksGrid = document.getElementById("weeksGrid");
+const includeBase = document.getElementById("includeBase");
 const baseLabel = document.getElementById("baseLabel");
 const input = document.getElementById("baseDate");
 const calcBtn = document.getElementById("calcBtn");
@@ -417,24 +467,46 @@ const feedback = document.getElementById("feedback");
 let mode = "ex";
 
 /* ---------- 対象週チェックボックス生成 ---------- */
+function makeChip(w, checked){
+  const lab = document.createElement("label");
+  lab.className = "wk" + (checked ? " on" : "");
+  lab.innerHTML = `<input type="checkbox" value="${w}" ${checked ? "checked" : ""}>${w}週`;
+  const cb = lab.querySelector("input");
+  cb.addEventListener("change", () => {
+    lab.classList.toggle("on", cb.checked);
+    lsSet(LS.weeks, JSON.stringify(getCheckedWeeks()));
+  });
+  weeksGrid.appendChild(lab);
+}
 function buildWeekChips(){
   const saved = (() => { try { return JSON.parse(lsGet(LS.weeks)); } catch(e){ return null; } })();
   const on = Array.isArray(saved) ? saved : EX_WEEKS.slice();
   weeksGrid.innerHTML = "";
-  EX_WEEKS.forEach(w => {
-    const lab = document.createElement("label");
-    lab.className = "wk" + (on.includes(w) ? " on" : "");
-    lab.innerHTML = `<input type="checkbox" value="${w}" ${on.includes(w) ? "checked" : ""}>${w}週`;
-    const cb = lab.querySelector("input");
-    cb.addEventListener("change", () => {
-      lab.classList.toggle("on", cb.checked);
-      lsSet(LS.weeks, JSON.stringify(getCheckedWeeks()));
-    });
-    weeksGrid.appendChild(lab);
-  });
+  const sep1 = document.createElement("div");
+  sep1.className = "wk-sep"; sep1.textContent = "─ 26週まで ─";
+  weeksGrid.appendChild(sep1);
+  FIRST_HALF.forEach(w => makeChip(w, on.includes(w)));
+  const sep2 = document.createElement("div");
+  sep2.className = "wk-sep"; sep2.textContent = "─ 28週以降 ─";
+  weeksGrid.appendChild(sep2);
+  SECOND_HALF.forEach(w => makeChip(w, on.includes(w)));
 }
 function getCheckedWeeks(){
   return [...weeksGrid.querySelectorAll("input:checked")].map(c => Number(c.value));
+}
+// クイック選択（全選択/全解除/前半のみ/後半のみ）
+function applySelection(kind){
+  let target;
+  if (kind === "all") target = EX_WEEKS;
+  else if (kind === "none") target = [];
+  else if (kind === "first") target = FIRST_HALF;
+  else target = SECOND_HALF;
+  weeksGrid.querySelectorAll(".wk").forEach(lab => {
+    const cb = lab.querySelector("input");
+    cb.checked = target.includes(Number(cb.value));
+    lab.classList.toggle("on", cb.checked);
+  });
+  lsSet(LS.weeks, JSON.stringify(getCheckedWeeks()));
 }
 
 /* ---------- モード切替 ---------- */
@@ -478,9 +550,10 @@ function buildContext(){
   const [y, m, d] = val.split("-").map(Number);
   const base = new Date(y, m - 1, d);
   const weeks = mode === "ex" ? getCheckedWeeks() : NU_WEEKS.slice();
-  // 1件目は基準日そのもの（EX導入日／NU投与日）
+  // 1件目は基準日そのもの（EX導入日／NU投与日）。EXでは導入日トグルで含める/含めないを切替。
+  const wantBase = mode === "ex" ? includeBase.checked : true;
   const baseItem = { w: 0, date: base, marker: markerOf(base), holName: HOLIDAYS[keyOf(base)] || "", isBase: true };
-  const items = [baseItem].concat(weeks.map(w => {
+  const items = (wantBase ? [baseItem] : []).concat(weeks.map(w => {
     const t = addWeeks(base, w);
     return { w, date: t, marker: markerOf(t), holName: HOLIDAYS[keyOf(t)] || "", isBase: false };
   }));
@@ -493,6 +566,9 @@ function render(){
   if (!ctx) return;
   baseLine.textContent = `基準日：${fmt(ctx.base)}（${weekdays[ctx.base.getDay()]}）`;
   rows.innerHTML = "";
+  if (ctx.items.length === 0){
+    rows.innerHTML = `<div class="row"><div class="term" style="color:var(--muted);font-weight:400">出力対象がありません（対象週または導入日を選択してください）</div></div>`;
+  }
   ctx.items.forEach(it => {
     const termLabel = it.isBase
       ? (mode === "ex" ? "導入日" : "投与日")
@@ -651,6 +727,16 @@ function init(){
   }
   const savedCustom = lsGet(LS.sourceCustom);
   if (savedCustom) sourceCustom.value = savedCustom;
+
+  // 導入日トグルの復元・保存
+  if (lsGet(LS.base) === "0") includeBase.checked = false;
+  includeBase.addEventListener("change", () => lsSet(LS.base, includeBase.checked ? "1" : "0"));
+
+  // クイック選択ボタン
+  document.querySelector(".wk-tools").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (b) applySelection(b.dataset.sel);
+  });
 
   modes.addEventListener("click", (e) => {
     const b = e.target.closest(".mode-btn");
