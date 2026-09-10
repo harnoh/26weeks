@@ -462,9 +462,10 @@ source.addEventListener("change", () => {
 sourceCustom.addEventListener("input", () => lsSet(LS.sourceCustom, sourceCustom.value));
 
 /* ---------- 件名生成 ---------- */
-function subjectOf(name, w, target){
+function subjectOf(name, w, target, isBase){
   const mk = markerOf(target);
   if (mode === "ex"){
+    if (isBase) return `${name}EX導入（${currentSource()}→）${mk}`;
     return `${name}EX${w}週目（${currentSource()}→）${mk}`;
   }
   return `${name}NU投与日${mk}`;
@@ -477,11 +478,12 @@ function buildContext(){
   const [y, m, d] = val.split("-").map(Number);
   const base = new Date(y, m - 1, d);
   const weeks = mode === "ex" ? getCheckedWeeks() : NU_WEEKS.slice();
-  if (weeks.length === 0) return { base, name: doctor.value.trim(), items: [] };
-  const items = weeks.map(w => {
+  // 1件目は基準日そのもの（EX導入日／NU投与日）
+  const baseItem = { w: 0, date: base, marker: markerOf(base), holName: HOLIDAYS[keyOf(base)] || "", isBase: true };
+  const items = [baseItem].concat(weeks.map(w => {
     const t = addWeeks(base, w);
-    return { w, date: t, marker: markerOf(t), holName: HOLIDAYS[keyOf(t)] || "" };
-  });
+    return { w, date: t, marker: markerOf(t), holName: HOLIDAYS[keyOf(t)] || "", isBase: false };
+  }));
   return { base, name: doctor.value.trim(), items };
 }
 
@@ -491,18 +493,18 @@ function render(){
   if (!ctx) return;
   baseLine.textContent = `基準日：${fmt(ctx.base)}（${weekdays[ctx.base.getDay()]}）`;
   rows.innerHTML = "";
-  if (ctx.items.length === 0){
-    rows.innerHTML = `<div class="row"><div class="term" style="color:var(--muted)">対象週が選択されていません</div></div>`;
-  }
   ctx.items.forEach(it => {
-    const termLabel = mode === "ex" ? `${it.w}週目` : `+${it.w}週`;
+    const termLabel = it.isBase
+      ? (mode === "ex" ? "導入日" : "投与日")
+      : (mode === "ex" ? `${it.w}週目` : `+${it.w}週`);
+    const daysLabel = it.isBase ? "起点" : `${it.w * 7} DAYS`;
     const mkHtml = it.marker
       ? `<div class="mk">${it.marker}${it.holName ? "（" + it.holName + "）" : ""}</div>`
       : "";
     const row = document.createElement("div");
     row.className = "row" + (it.marker ? " flagged" : "");
     row.innerHTML =
-      `<div class="term">${termLabel}<small>${it.w * 7} DAYS</small></div>` +
+      `<div class="term">${termLabel}<small>${daysLabel}</small></div>` +
       `<div class="val">` +
         `<div class="date">${fmt(it.date)} <span class="wd">（${weekdays[it.date.getDay()]}）</span></div>` +
         mkHtml +
@@ -571,10 +573,11 @@ function buildICS(ctx){
   ctx.items.forEach(it => {
     const start = icsDate(it.date);
     const end = icsDate(new Date(it.date.getFullYear(), it.date.getMonth(), it.date.getDate() + 1));
+    const slot = it.isBase ? "base" : `${it.w}w`;
     const uid = mode === "ex"
-      ? `${nameHash}-${srcSafe}-${it.w}w-${start}-${rand()}@harnoh.github.io`
+      ? `${nameHash}-${srcSafe}-${slot}-${start}-${rand()}@harnoh.github.io`
       : `${nameHash}-nu-${start}-${rand()}@harnoh.github.io`;
-    const summary = subjectOf(ctx.name, it.w, it.date);
+    const summary = subjectOf(ctx.name, it.w, it.date, it.isBase);
     lines.push(
       "BEGIN:VEVENT",
       `UID:${uid}`,
