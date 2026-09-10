@@ -297,6 +297,7 @@
     color: var(--muted);
   }
   .ics-hint b { color: var(--ink); }
+  .ics-hint .hint-note { display: block; margin-top: 8px; font-size: 0.72rem; color: #a09a90; }
 
   .feedback {
     margin-top: 14px;
@@ -376,8 +377,9 @@
       <div id="rows"></div>
       <button class="ics" id="icsBtn">カレンダーに追加（.ics）</button>
       <div class="ics-hint" id="icsHint">
-        <b>iPadの場合</b>：共有シートが開いたら <b>「Outlook」</b> をタップ → Outlookが開くので、そのまま予定を追加できます。<br>
-        （Outlookが出ないときは「その他」や右スワイプでアプリ一覧から選べます）
+        <b>追加のしかた（iPad）</b><br>
+        共有シートで <b>「カレンダー」</b> を選ぶと、プレビュー →「追加」でそのまま登録できます。<br>
+        <span class="hint-note">※「Outlook」を選ぶと<b>メール作成画面</b>になります（Outlookの仕様）。その場合は自分宛に送信し、届いたメールの添付ファイルを開いて「カレンダーに追加」してください。Outlookカレンダーに入れるには、iPadの「設定 &gt; カレンダー &gt; デフォルト」を会社アカウントにしておくのが確実です。</span>
       </div>
       <div class="feedback" id="feedback"></div>
       <div class="footer">
