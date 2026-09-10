@@ -286,6 +286,18 @@
   }
   button.ics:hover { background: #85704f; }
 
+  .ics-hint {
+    margin-top: 12px;
+    padding: 12px 14px;
+    background: #f2efe8;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-size: 0.76rem;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+  .ics-hint b { color: var(--ink); }
+
   .feedback {
     margin-top: 14px;
     text-align: center;
@@ -363,6 +375,10 @@
       <div class="base-line" id="baseLine"></div>
       <div id="rows"></div>
       <button class="ics" id="icsBtn">カレンダーに追加（.ics）</button>
+      <div class="ics-hint" id="icsHint">
+        <b>iPadの場合</b>：共有シートが開いたら <b>「Outlook」</b> をタップ → Outlookが開くので、そのまま予定を追加できます。<br>
+        （Outlookが出ないときは「その他」や右スワイプでアプリ一覧から選べます）
+      </div>
       <div class="feedback" id="feedback"></div>
       <div class="footer">
         <span class="dot">●</span> .ics には常に元の候補日を書き出します。土日・祝日の回は件名に <b>※土日 / ※祝日</b> を付与します。
