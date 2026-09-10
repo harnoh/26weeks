@@ -33,7 +33,7 @@
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: 4px;
-    padding: 48px 40px 40px;
+    padding: 44px 38px 38px;
     box-shadow: 0 18px 50px rgba(60, 50, 35, 0.08);
   }
 
@@ -46,11 +46,11 @@
     text-transform: uppercase;
     color: #b3a384;
     text-align: center;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   }
 
   h1 {
-    font-size: 1.55rem;
+    font-size: 1.5rem;
     font-weight: 600;
     text-align: center;
     letter-spacing: 0.04em;
@@ -61,42 +61,94 @@
     width: 40px;
     height: 1px;
     background: var(--accent);
-    margin: 0 auto 16px;
+    margin: 0 auto 22px;
   }
 
-  .sub {
-    text-align: center;
-    color: var(--muted);
-    font-size: 0.86rem;
-    line-height: 1.7;
-    margin-bottom: 32px;
+  /* モード切替 */
+  .modes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 26px;
   }
+  .mode-btn {
+    padding: 12px 0;
+    text-align: center;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.18s;
+    user-select: none;
+  }
+  .mode-btn small {
+    display: block;
+    font-family: "Helvetica Neue", "Arial", sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .mode-btn:hover { border-color: var(--accent); }
+  .mode-btn.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .mode-btn.active small { color: rgba(255,255,255,0.6); }
 
   label {
     display: block;
     font-size: 0.78rem;
     letter-spacing: 0.08em;
     color: var(--muted);
-    margin-bottom: 10px;
+    margin-bottom: 9px;
   }
 
-  input[type="date"] {
+  input[type="text"],
+  input[type="date"],
+  select {
     width: 100%;
-    padding: 14px;
+    padding: 13px 14px;
     font-size: 1rem;
     font-family: inherit;
     color: var(--ink);
     background: #fff;
     border: 1px solid var(--line);
     border-radius: 3px;
-    margin-bottom: 22px;
     transition: border-color 0.2s;
   }
-  input[type="date"]:focus { outline: none; border-color: var(--accent); }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
+
+  .field { margin-bottom: 20px; }
+  [hidden] { display: none !important; }
+
+  /* 対象週チェックボックス */
+  .weeks-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .wk {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 0;
+    font-size: 0.92rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s;
+  }
+  .wk input { position: absolute; opacity: 0; pointer-events: none; }
+  .wk.on { background: var(--ink); border-color: var(--ink); color: #fff; }
 
   button.calc {
     width: 100%;
     padding: 15px;
+    margin-top: 4px;
     font-size: 0.92rem;
     font-family: inherit;
     letter-spacing: 0.16em;
@@ -111,7 +163,7 @@
 
   /* 一覧 */
   .list {
-    margin-top: 34px;
+    margin-top: 32px;
     opacity: 0;
     transform: translateY(8px);
     transition: opacity 0.5s ease, transform 0.5s ease;
@@ -133,7 +185,7 @@
     text-align: center;
     font-size: 0.8rem;
     color: var(--muted);
-    margin-bottom: 20px;
+    margin-bottom: 18px;
   }
 
   .row {
@@ -141,17 +193,16 @@
     align-items: baseline;
     justify-content: space-between;
     gap: 14px;
-    padding: 14px 2px;
+    padding: 13px 2px;
     border-top: 1px solid var(--line);
   }
   .row:last-child { border-bottom: 1px solid var(--line); }
-
   .row .term {
     flex: 0 0 auto;
-    font-size: 1.02rem;
+    font-size: 1rem;
     font-weight: 600;
     letter-spacing: 0.02em;
-    min-width: 68px;
+    min-width: 64px;
   }
   .row .term small {
     display: block;
@@ -163,197 +214,453 @@
     margin-top: 2px;
   }
   .row .val { text-align: right; flex: 1 1 auto; }
-  .row .date {
-    font-size: 1.08rem;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-  }
-  .row .date .wd { font-size: 0.9rem; color: var(--muted); font-weight: 400; }
-
-  .row.holiday .date { color: var(--warn); }
-  .row .flag {
-    margin-top: 5px;
-    font-size: 0.74rem;
-    line-height: 1.6;
-    color: #9a7358;
-  }
-  .row .flag .tag {
+  .row .date { font-size: 1.05rem; font-weight: 600; }
+  .row .date .wd { font-size: 0.88rem; color: var(--muted); font-weight: 400; }
+  .row.flagged .date { color: var(--warn); }
+  .row .mk {
     display: inline-block;
     font-family: "Helvetica Neue", "Arial", sans-serif;
     font-size: 0.62rem;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     color: var(--warn);
     background: #f7efe9;
     border: 1px solid #ecdfd4;
     border-radius: 3px;
     padding: 1px 7px;
-    margin-right: 6px;
+    margin-top: 5px;
   }
-  .row .flag b { color: #6a4a35; font-weight: 600; }
+
+  button.ics {
+    width: 100%;
+    margin-top: 26px;
+    padding: 15px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    letter-spacing: 0.12em;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.25s;
+  }
+  button.ics:hover { background: #85704f; }
+
+  .feedback {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--accent);
+    min-height: 1.2em;
+  }
 
   .footer {
-    margin-top: 28px;
+    margin-top: 22px;
     text-align: center;
     font-size: 0.72rem;
     line-height: 1.7;
     color: var(--muted);
   }
-  .footer .note-hol { color: var(--warn); }
+  .footer .dot { color: var(--warn); }
 </style>
 </head>
 <body>
   <div class="card">
     <div class="eyebrow">Follow-up Schedule</div>
-    <h1>次回訪問日の一覧</h1>
+    <h1 id="title">次回訪問日の一覧</h1>
     <div class="rule"></div>
-    <p class="sub">基準日を入力すると、4〜26週後の候補日を<br>まとめて一覧で表示します。</p>
 
-    <label for="baseDate">基準となる日付</label>
-    <input type="date" id="baseDate">
+    <!-- モード切替 -->
+    <div class="modes" id="modes">
+      <div class="mode-btn active" data-mode="ex">EX<small>導入後</small></div>
+      <div class="mode-btn" data-mode="nu">NU<small>投与中</small></div>
+    </div>
+
+    <!-- 医師名（共通） -->
+    <div class="field">
+      <label for="doctor">医師名（任意）</label>
+      <input type="text" id="doctor" placeholder="例：村中先生" autocomplete="off">
+    </div>
+
+    <!-- EX専用：切り替え元 -->
+    <div class="field" id="sourceField">
+      <label for="source">切り替え元</label>
+      <select id="source">
+        <option value="FSN">FSN</option>
+        <option value="NU">NU</option>
+        <option value="TZP">TZP</option>
+        <option value="DUP">DUP</option>
+        <option value="NUC">NUC</option>
+        <option value="__other">その他（自由入力）</option>
+      </select>
+      <input type="text" id="sourceCustom" placeholder="略号を入力" autocomplete="off" style="margin-top:8px;" hidden>
+    </div>
+
+    <!-- 基準日（共通・ラベルはモードで変化） -->
+    <div class="field">
+      <label for="baseDate" id="baseLabel">基準となる日付</label>
+      <input type="date" id="baseDate">
+    </div>
+
+    <!-- EX専用：対象週 -->
+    <div class="field" id="weeksField">
+      <label>対象週（＝EX導入から◯週目）</label>
+      <div class="weeks-grid" id="weeksGrid"></div>
+    </div>
+
     <button class="calc" id="calcBtn">一 覧 を 表 示</button>
 
+    <!-- 一覧 -->
     <div class="list" id="list">
       <div class="list-head">Schedule</div>
       <div class="base-line" id="baseLine"></div>
       <div id="rows"></div>
+      <button class="ics" id="icsBtn">カレンダーに追加（.ics）</button>
+      <div class="feedback" id="feedback"></div>
       <div class="footer">
-        <span class="note-hol">●</span> 土日・祝日に当たる回は最寄りの平日を併記しています。
+        <span class="dot">●</span> .ics には常に元の候補日を書き出します。土日・祝日の回は件名に <b>※土日 / ※祝日</b> を付与します。
       </div>
     </div>
   </div>
 
 <script>
-  const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
-  const INTERVALS = [4, 8, 12, 13, 16, 20, 24, 26];
+/* ============================================================
+   日本の祝日テーブル（内閣府の告示ベース・確定値）
+   有効範囲：2025〜2030年。2030年より先を扱う場合は要更新。
+   ※ 振替休日・国民の休日も展開済み。
+   最終更新：2026-09（生成時点の確定祝日）
+   ============================================================ */
+const HOLIDAYS = {
+  "2025-01-01": "元日", "2025-01-13": "成人の日", "2025-02-11": "建国記念の日",
+  "2025-02-23": "天皇誕生日", "2025-02-24": "振替休日", "2025-03-20": "春分の日",
+  "2025-04-29": "昭和の日", "2025-05-03": "憲法記念日", "2025-05-04": "みどりの日",
+  "2025-05-05": "こどもの日", "2025-05-06": "振替休日", "2025-07-21": "海の日",
+  "2025-08-11": "山の日", "2025-09-15": "敬老の日", "2025-09-23": "秋分の日",
+  "2025-10-13": "スポーツの日", "2025-11-03": "文化の日", "2025-11-23": "勤労感謝の日",
+  "2025-11-24": "振替休日",
+  "2026-01-01": "元日", "2026-01-12": "成人の日", "2026-02-11": "建国記念の日",
+  "2026-02-23": "天皇誕生日", "2026-03-20": "春分の日", "2026-04-29": "昭和の日",
+  "2026-05-03": "憲法記念日", "2026-05-04": "みどりの日", "2026-05-05": "こどもの日",
+  "2026-05-06": "振替休日", "2026-07-20": "海の日", "2026-08-11": "山の日",
+  "2026-09-21": "敬老の日", "2026-09-22": "国民の休日", "2026-09-23": "秋分の日",
+  "2026-10-12": "スポーツの日", "2026-11-03": "文化の日", "2026-11-23": "勤労感謝の日",
+  "2027-01-01": "元日", "2027-01-11": "成人の日", "2027-02-11": "建国記念の日",
+  "2027-02-23": "天皇誕生日", "2027-03-21": "春分の日", "2027-03-22": "振替休日",
+  "2027-04-29": "昭和の日", "2027-05-03": "憲法記念日", "2027-05-04": "みどりの日",
+  "2027-05-05": "こどもの日", "2027-07-19": "海の日", "2027-08-11": "山の日",
+  "2027-09-20": "敬老の日", "2027-09-23": "秋分の日", "2027-10-11": "スポーツの日",
+  "2027-11-03": "文化の日", "2027-11-23": "勤労感謝の日",
+  "2028-01-01": "元日", "2028-01-10": "成人の日", "2028-02-11": "建国記念の日",
+  "2028-02-23": "天皇誕生日", "2028-03-20": "春分の日", "2028-04-29": "昭和の日",
+  "2028-05-03": "憲法記念日", "2028-05-04": "みどりの日", "2028-05-05": "こどもの日",
+  "2028-07-17": "海の日", "2028-08-11": "山の日", "2028-09-18": "敬老の日",
+  "2028-09-22": "秋分の日", "2028-10-09": "スポーツの日", "2028-11-03": "文化の日",
+  "2028-11-23": "勤労感謝の日",
+  "2029-01-01": "元日", "2029-01-08": "成人の日", "2029-02-11": "建国記念の日",
+  "2029-02-12": "振替休日", "2029-02-23": "天皇誕生日", "2029-03-20": "春分の日",
+  "2029-04-29": "昭和の日", "2029-04-30": "振替休日", "2029-05-03": "憲法記念日",
+  "2029-05-04": "みどりの日", "2029-05-05": "こどもの日", "2029-07-16": "海の日",
+  "2029-08-11": "山の日", "2029-09-17": "敬老の日", "2029-09-23": "秋分の日",
+  "2029-09-24": "振替休日", "2029-10-08": "スポーツの日", "2029-11-03": "文化の日",
+  "2029-11-23": "勤労感謝の日",
+  "2030-01-01": "元日", "2030-01-14": "成人の日", "2030-02-11": "建国記念の日",
+  "2030-02-23": "天皇誕生日", "2030-03-20": "春分の日", "2030-04-29": "昭和の日",
+  "2030-05-03": "憲法記念日", "2030-05-04": "みどりの日", "2030-05-05": "こどもの日",
+  "2030-05-06": "振替休日", "2030-07-15": "海の日", "2030-08-11": "山の日",
+  "2030-08-12": "振替休日", "2030-09-16": "敬老の日", "2030-09-23": "秋分の日",
+  "2030-10-14": "スポーツの日", "2030-11-03": "文化の日", "2030-11-04": "振替休日",
+  "2030-11-23": "勤労感謝の日"
+};
 
-  /* ---------- 日本の祝日計算 ---------- */
-  function pad(n){ return String(n).padStart(2, "0"); }
-  function key(d){ return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
-  function nthMonday(year, month, n){
-    const first = new Date(year, month - 1, 1);
-    let day = 1 + ((8 - first.getDay()) % 7) + (n - 1) * 7;
-    return new Date(year, month - 1, day);
-  }
-  function shunbun(year){ return Math.floor(20.8431 + 0.242194 * (year - 1980) - Math.floor((year - 1980) / 4)); }
-  function shubun(year){ return Math.floor(23.2488 + 0.242194 * (year - 1980) - Math.floor((year - 1980) / 4)); }
+const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+const EX_WEEKS = [4, 8, 12, 13, 16, 20, 24, 26];
+const NU_WEEKS = [4, 8, 12, 16, 20, 24];
+const LS = { mode: "v26_mode", source: "v26_source", sourceCustom: "v26_sourceCustom", weeks: "v26_weeks" };
 
-  function baseHolidays(year){
-    const h = new Map();
-    const add = (m, d, name) => h.set(key(new Date(year, m - 1, d)), name);
-    add(1, 1, "元日");
-    h.set(key(nthMonday(year, 1, 2)), "成人の日");
-    add(2, 11, "建国記念の日");
-    if (year >= 2020) add(2, 23, "天皇誕生日");
-    h.set(key(new Date(year, 2, shunbun(year))), "春分の日");
-    add(4, 29, "昭和の日");
-    add(5, 3, "憲法記念日");
-    add(5, 4, "みどりの日");
-    add(5, 5, "こどもの日");
-    h.set(key(nthMonday(year, 7, 3)), "海の日");
-    add(8, 11, "山の日");
-    h.set(key(nthMonday(year, 9, 3)), "敬老の日");
-    h.set(key(new Date(year, 8, shubun(year))), "秋分の日");
-    h.set(key(nthMonday(year, 10, 2)), "スポーツの日");
-    add(11, 3, "文化の日");
-    add(11, 23, "勤労感謝の日");
-    return h;
-  }
+/* ---------- 日付ユーティリティ ---------- */
+function p2(n){ return String(n).padStart(2, "0"); }
+function keyOf(d){ return d.getFullYear() + "-" + p2(d.getMonth() + 1) + "-" + p2(d.getDate()); }
+function addWeeks(base, w){ return new Date(base.getFullYear(), base.getMonth(), base.getDate() + w * 7); }
+function fmt(d){ return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`; }
+function icsDate(d){ return `${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}`; }
 
-  function buildHolidays(years){
-    const base = new Map();
-    years.forEach(y => baseHolidays(y).forEach((v, k) => base.set(k, v)));
-    const result = new Map(base);
-    [...base.keys()].sort().forEach(k => {
-      const p = k.split("-").map(Number);
-      const d = new Date(p[0], p[1] - 1, p[2]);
-      if (d.getDay() === 0){
-        const n = new Date(d);
-        do { n.setDate(n.getDate() + 1); } while (result.has(key(n)));
-        result.set(key(n), "振替休日");
-      }
+// 土日・祝日マーカー（祝日優先）
+function markerOf(d){
+  if (HOLIDAYS[keyOf(d)]) return "※祝日";
+  const wd = d.getDay();
+  if (wd === 0 || wd === 6) return "※土日";
+  return "";
+}
+
+/* ---------- localStorage ---------- */
+function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
+
+/* ---------- DOM ---------- */
+const modes = document.getElementById("modes");
+const title = document.getElementById("title");
+const doctor = document.getElementById("doctor");
+const sourceField = document.getElementById("sourceField");
+const source = document.getElementById("source");
+const sourceCustom = document.getElementById("sourceCustom");
+const weeksField = document.getElementById("weeksField");
+const weeksGrid = document.getElementById("weeksGrid");
+const baseLabel = document.getElementById("baseLabel");
+const input = document.getElementById("baseDate");
+const calcBtn = document.getElementById("calcBtn");
+const list = document.getElementById("list");
+const rows = document.getElementById("rows");
+const baseLine = document.getElementById("baseLine");
+const icsBtn = document.getElementById("icsBtn");
+const feedback = document.getElementById("feedback");
+
+let mode = "ex";
+
+/* ---------- 対象週チェックボックス生成 ---------- */
+function buildWeekChips(){
+  const saved = (() => { try { return JSON.parse(lsGet(LS.weeks)); } catch(e){ return null; } })();
+  const on = Array.isArray(saved) ? saved : EX_WEEKS.slice();
+  weeksGrid.innerHTML = "";
+  EX_WEEKS.forEach(w => {
+    const lab = document.createElement("label");
+    lab.className = "wk" + (on.includes(w) ? " on" : "");
+    lab.innerHTML = `<input type="checkbox" value="${w}" ${on.includes(w) ? "checked" : ""}>${w}週`;
+    const cb = lab.querySelector("input");
+    cb.addEventListener("change", () => {
+      lab.classList.toggle("on", cb.checked);
+      lsSet(LS.weeks, JSON.stringify(getCheckedWeeks()));
     });
-    const minY = Math.min(...years), maxY = Math.max(...years);
-    for (let y = minY; y <= maxY; y++){
-      for (let m = 0; m < 12; m++){
-        const dim = new Date(y, m + 1, 0).getDate();
-        for (let dd = 1; dd <= dim; dd++){
-          const d = new Date(y, m, dd);
-          if (d.getDay() === 0 || result.has(key(d))) continue;
-          const prev = key(new Date(y, m, dd - 1));
-          const next = key(new Date(y, m, dd + 1));
-          if (result.has(prev) && result.has(next)) result.set(key(d), "国民の休日");
-        }
-      }
+    weeksGrid.appendChild(lab);
+  });
+}
+function getCheckedWeeks(){
+  return [...weeksGrid.querySelectorAll("input:checked")].map(c => Number(c.value));
+}
+
+/* ---------- モード切替 ---------- */
+function setMode(m){
+  mode = m;
+  [...modes.children].forEach(b => b.classList.toggle("active", b.dataset.mode === m));
+  const isEx = m === "ex";
+  sourceField.hidden = !isEx;
+  weeksField.hidden = !isEx;
+  title.textContent = isEx ? "次回訪問日の一覧" : "NU投与日の一覧";
+  baseLabel.textContent = isEx ? "基準となる日付（EX導入日）" : "基準となる日付（直近の投与日）";
+  list.classList.remove("show");
+  feedback.textContent = "";
+  lsSet(LS.mode, m);
+}
+
+/* ---------- 切り替え元 ---------- */
+function currentSource(){
+  return source.value === "__other" ? (sourceCustom.value.trim() || "その他") : source.value;
+}
+source.addEventListener("change", () => {
+  sourceCustom.hidden = source.value !== "__other";
+  lsSet(LS.source, source.value);
+});
+sourceCustom.addEventListener("input", () => lsSet(LS.sourceCustom, sourceCustom.value));
+
+/* ---------- 件名生成 ---------- */
+function subjectOf(name, w, target){
+  const mk = markerOf(target);
+  if (mode === "ex"){
+    return `${name}EX${w}週目（${currentSource()}→）${mk}`;
+  }
+  return `${name}NU投与日${mk}`;
+}
+
+/* ---------- 対象日リスト構築 ---------- */
+function buildContext(){
+  const val = input.value;
+  if (!val){ input.focus(); return null; }
+  const [y, m, d] = val.split("-").map(Number);
+  const base = new Date(y, m - 1, d);
+  const weeks = mode === "ex" ? getCheckedWeeks() : NU_WEEKS.slice();
+  if (weeks.length === 0) return { base, name: doctor.value.trim(), items: [] };
+  const items = weeks.map(w => {
+    const t = addWeeks(base, w);
+    return { w, date: t, marker: markerOf(t), holName: HOLIDAYS[keyOf(t)] || "" };
+  });
+  return { base, name: doctor.value.trim(), items };
+}
+
+/* ---------- 一覧描画 ---------- */
+function render(){
+  const ctx = buildContext();
+  if (!ctx) return;
+  baseLine.textContent = `基準日：${fmt(ctx.base)}（${weekdays[ctx.base.getDay()]}）`;
+  rows.innerHTML = "";
+  if (ctx.items.length === 0){
+    rows.innerHTML = `<div class="row"><div class="term" style="color:var(--muted)">対象週が選択されていません</div></div>`;
+  }
+  ctx.items.forEach(it => {
+    const termLabel = mode === "ex" ? `${it.w}週目` : `+${it.w}週`;
+    const mkHtml = it.marker
+      ? `<div class="mk">${it.marker}${it.holName ? "（" + it.holName + "）" : ""}</div>`
+      : "";
+    const row = document.createElement("div");
+    row.className = "row" + (it.marker ? " flagged" : "");
+    row.innerHTML =
+      `<div class="term">${termLabel}<small>${it.w * 7} DAYS</small></div>` +
+      `<div class="val">` +
+        `<div class="date">${fmt(it.date)} <span class="wd">（${weekdays[it.date.getDay()]}）</span></div>` +
+        mkHtml +
+      `</div>`;
+    rows.appendChild(row);
+  });
+  feedback.textContent = "";
+  list.classList.remove("show");
+  void list.offsetWidth;
+  list.classList.add("show");
+}
+
+/* ============================================================
+   .ics 生成
+   ============================================================ */
+function hashStr(s){
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+  return h.toString(36);
+}
+function rand(){ return Math.random().toString(36).slice(2, 8); }
+function dtstampUTC(){
+  const n = new Date();
+  return `${n.getUTCFullYear()}${p2(n.getUTCMonth() + 1)}${p2(n.getUTCDate())}` +
+         `T${p2(n.getUTCHours())}${p2(n.getUTCMinutes())}${p2(n.getUTCSeconds())}Z`;
+}
+function escICS(s){
+  return String(s)
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\r?\n/g, "\\n");
+}
+// 75オクテット折り返し（マルチバイト文字を分割しない）
+function foldLine(line){
+  const enc = new TextEncoder();
+  if (enc.encode(line).length <= 75) return line;
+  const out = [];
+  let cur = "", curBytes = 0, first = true;
+  for (const ch of line){
+    const b = enc.encode(ch).length;
+    const cap = first ? 75 : 74; // 継続行は先頭に空白1文字が入る
+    if (curBytes + b > cap){
+      out.push((first ? "" : " ") + cur);
+      first = false;
+      cur = ch; curBytes = b;
+    } else {
+      cur += ch; curBytes += b;
     }
-    return result;
   }
+  out.push((first ? "" : " ") + cur);
+  return out.join("\r\n");
+}
 
-  function isWeekend(d){ return d.getDay() === 0 || d.getDay() === 6; }
-  function isBusinessDay(d, hol){ return !isWeekend(d) && !hol.has(key(d)); }
-  function fmt(d){ return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`; }
-  function fmtShort(d){ return `${d.getMonth() + 1}月${d.getDate()}日`; }
+function buildICS(ctx){
+  const stamp = dtstampUTC();
+  const nameHash = hashStr(ctx.name || "noname");
+  const srcSafe = (currentSource().replace(/[^A-Za-z0-9]/g, "") || "x");
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//harnoh//26weeks//JA",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH"
+  ];
+  ctx.items.forEach(it => {
+    const start = icsDate(it.date);
+    const end = icsDate(new Date(it.date.getFullYear(), it.date.getMonth(), it.date.getDate() + 1));
+    const uid = mode === "ex"
+      ? `${nameHash}-${srcSafe}-${it.w}w-${start}-${rand()}@harnoh.github.io`
+      : `${nameHash}-nu-${start}-${rand()}@harnoh.github.io`;
+    const summary = subjectOf(ctx.name, it.w, it.date);
+    lines.push(
+      "BEGIN:VEVENT",
+      `UID:${uid}`,
+      `DTSTAMP:${stamp}`,
+      `DTSTART;VALUE=DATE:${start}`,
+      `DTEND;VALUE=DATE:${end}`,
+      `SUMMARY:${escICS(summary)}`,
+      "TRANSP:TRANSPARENT",
+      "END:VEVENT"
+    );
+  });
+  lines.push("END:VCALENDAR");
+  return lines.map(foldLine).join("\r\n") + "\r\n";
+}
 
-  /* ---------- UI ---------- */
-  const input = document.getElementById("baseDate");
-  const btn = document.getElementById("calcBtn");
-  const list = document.getElementById("list");
-  const rows = document.getElementById("rows");
-  const baseLine = document.getElementById("baseLine");
+function sanitizeFile(s){ return s.replace(/[\/\\:*?"<>|]/g, "").trim(); }
+function icsFileName(ctx){
+  const namePart = sanitizeFile(ctx.name);
+  const dateStr = icsDate(ctx.base);
+  if (mode === "ex"){
+    const src = sanitizeFile(currentSource()) || "x";
+    return `${namePart ? namePart + "_" : ""}EX_${src}_${dateStr}.ics`;
+  }
+  return `${namePart ? namePart + "_" : ""}NU_${dateStr}.ics`;
+}
 
+function downloadBlob(text, fileName){
+  const blob = new Blob([text], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = fileName;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+async function exportICS(){
+  const ctx = buildContext();
+  if (!ctx) return;
+  if (ctx.items.length === 0){ feedback.textContent = "対象週を1つ以上選んでください。"; return; }
+  const text = buildICS(ctx);
+  const fileName = icsFileName(ctx);
+  const count = ctx.items.length;
+
+  // 第1優先：Web Share API（iOS Safari → 共有シート → カレンダー）
+  try {
+    const file = new File([text], fileName, { type: "text/calendar" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })){
+      await navigator.share({ files: [file], title: fileName });
+      feedback.textContent = `${count}件を書き出しました。`;
+      return;
+    }
+  } catch(e){
+    if (e && e.name === "AbortError") return; // キャンセルはエラー扱いしない
+    // それ以外の共有失敗はダウンロードにフォールバック
+  }
+  // 第2優先：Blobダウンロード
+  downloadBlob(text, fileName);
+  feedback.textContent = `${count}件を書き出しました（ダウンロード）。`;
+}
+
+/* ---------- 初期化 ---------- */
+function init(){
   input.value = new Date().toISOString().slice(0, 10);
+  buildWeekChips();
 
-  function calculate(){
-    const val = input.value;
-    if (!val){ input.focus(); return; }
-    const [y, m, d] = val.split("-").map(Number);
-    const base = new Date(y, m - 1, d);
-
-    const maxTarget = new Date(base);
-    maxTarget.setDate(maxTarget.getDate() + 26 * 7);
-    const hol = buildHolidays([base.getFullYear() - 1, base.getFullYear(), maxTarget.getFullYear(), maxTarget.getFullYear() + 1]);
-
-    baseLine.textContent = `基準日：${fmt(base)}（${weekdays[base.getDay()]}）`;
-
-    rows.innerHTML = "";
-    INTERVALS.forEach(w => {
-      const t = new Date(base);
-      t.setDate(t.getDate() + w * 7);
-      const holName = hol.get(key(t));
-      const weekend = isWeekend(t);
-      const isHol = !!(holName || weekend);
-
-      let flagHtml = "";
-      if (isHol){
-        const reason = holName ? holName : `${weekdays[t.getDay()]}曜日`;
-        let alt = null;
-        for (let off = 1; off <= 21 && !alt; off++){
-          const before = new Date(t); before.setDate(before.getDate() - off);
-          const after = new Date(t); after.setDate(after.getDate() + off);
-          if (isBusinessDay(before, hol)) alt = before;
-          else if (isBusinessDay(after, hol)) alt = after;
-        }
-        const altHtml = alt ? ` → 平日は <b>${fmtShort(alt)}（${weekdays[alt.getDay()]}）</b>` : "";
-        flagHtml = `<div class="flag"><span class="tag">${reason}</span>${altHtml}</div>`;
-      }
-
-      const row = document.createElement("div");
-      row.className = "row" + (isHol ? " holiday" : "");
-      row.innerHTML =
-        `<div class="term">${w}週後<small>${w * 7} DAYS</small></div>` +
-        `<div class="val">` +
-          `<div class="date">${fmt(t)} <span class="wd">（${weekdays[t.getDay()]}）</span></div>` +
-          flagHtml +
-        `</div>`;
-      rows.appendChild(row);
-    });
-
-    list.classList.remove("show");
-    void list.offsetWidth;
-    list.classList.add("show");
+  // localStorage 復元（医師名・基準日は除く）
+  const savedSource = lsGet(LS.source);
+  if (savedSource){
+    source.value = savedSource;
+    sourceCustom.hidden = savedSource !== "__other";
   }
+  const savedCustom = lsGet(LS.sourceCustom);
+  if (savedCustom) sourceCustom.value = savedCustom;
 
-  btn.addEventListener("click", calculate);
-  input.addEventListener("keydown", (e) => { if (e.key === "Enter") calculate(); });
+  modes.addEventListener("click", (e) => {
+    const b = e.target.closest(".mode-btn");
+    if (b) setMode(b.dataset.mode);
+  });
+  calcBtn.addEventListener("click", render);
+  icsBtn.addEventListener("click", exportICS);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") render(); });
+  doctor.addEventListener("keydown", (e) => { if (e.key === "Enter") render(); });
+
+  setMode(lsGet(LS.mode) === "nu" ? "nu" : "ex");
+}
+init();
 </script>
 </body>
 </html>
